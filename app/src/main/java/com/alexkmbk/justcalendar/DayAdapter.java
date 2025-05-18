@@ -15,12 +15,15 @@ import java.util.List;
 
 public class DayAdapter extends BaseAdapter {
 
-    private Context context;
-    private List<Calendar> dayList = new ArrayList<>();
-    private Calendar today = Calendar.getInstance();
+    private final Context context;
 
-    public DayAdapter(Context context) {
+    Calendar currentMonth;
+    private List<Calendar> dayList = new ArrayList<>();
+    private final Calendar today = Calendar.getInstance();
+
+    public DayAdapter(Context context, Calendar currentMonth) {
         this.context = context;
+        this.currentMonth = currentMonth;
     }
 
     public void setDays(List<Calendar> days) {
@@ -43,6 +46,10 @@ public class DayAdapter extends BaseAdapter {
         return position;
     }
 
+    public static boolean isSameMonth(Calendar c1, Calendar c2) {
+        return c1.get(Calendar.YEAR) == c2.get(Calendar.YEAR) &&
+                c1.get(Calendar.MONTH) == c2.get(Calendar.MONTH);
+    }
     @SuppressLint("ViewHolder")
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
@@ -58,8 +65,6 @@ public class DayAdapter extends BaseAdapter {
             return textView;
         }
 
-        textView.setText(String.valueOf(day.get(Calendar.DAY_OF_MONTH)));
-
         // Проверка на "сегодня"
         if (day.get(Calendar.YEAR) == today.get(Calendar.YEAR) &&
                 day.get(Calendar.MONTH) == today.get(Calendar.MONTH) &&
@@ -74,6 +79,11 @@ public class DayAdapter extends BaseAdapter {
             textView.setTextColor(Color.RED); // Выделяем выходные красным цветом
         }
 
+        textView.setText(String.valueOf(day.get(Calendar.DAY_OF_MONTH)));
+
+        if (!isSameMonth(currentMonth, day)) {
+            textView.setAlpha(0.2f); // Устанавливаем полупрозрачность
+        }
         return textView;
     }
 }

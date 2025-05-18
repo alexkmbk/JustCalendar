@@ -2,7 +2,6 @@ package  com.alexkmbk.justcalendar;
 
 import android.app.Activity;
 import android.os.Bundle;
-import android.widget.Button;
 import android.widget.GridView;
 import android.widget.ImageButton;
 import android.widget.TextView;
@@ -17,7 +16,7 @@ import java.util.Locale;
 
 public class MainActivity extends Activity {
 
-    private Calendar calendar;
+    private Calendar currentMonth;
     private TextView monthText;
     private GridView daysGrid;
     private DayAdapter adapter;
@@ -27,23 +26,23 @@ public class MainActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        calendar = Calendar.getInstance();
+        currentMonth = Calendar.getInstance();
 
         monthText = findViewById(R.id.monthText);
         daysGrid = findViewById(R.id.daysGrid);
-        adapter = new DayAdapter(this);
+        adapter = new DayAdapter(this, currentMonth);
         daysGrid.setAdapter(adapter);
 
         ImageButton prevButton = findViewById(R.id.prevButton);
         ImageButton nextButton = findViewById(R.id.nextButton);
 
         prevButton.setOnClickListener(v -> {
-            calendar.add(Calendar.MONTH, -1);
+            currentMonth.add(Calendar.MONTH, -1);
             updateCalendar();
         });
 
         nextButton.setOnClickListener(v -> {
-            calendar.add(Calendar.MONTH, 1);
+            currentMonth.add(Calendar.MONTH, 1);
             updateCalendar();
         });
 
@@ -52,27 +51,38 @@ public class MainActivity extends Activity {
 
     private void updateCalendar() {
        SimpleDateFormat sdf = new SimpleDateFormat("LLLL yyyy", new Locale("ru"));
-        String formattedDate = sdf.format(calendar.getTime());
+        String formattedDate = sdf.format(currentMonth.getTime());
         monthText.setText(formattedDate.substring(0, 1).toUpperCase() + formattedDate.substring(1));
 
         List<Calendar> days = new ArrayList<>();
-        Calendar tempCal = (Calendar) calendar.clone();
+        Calendar tempCal = (Calendar) currentMonth.clone();
         tempCal.set(Calendar.DAY_OF_MONTH, 1);
 
-        int firstDayOfWeek = tempCal.get(Calendar.DAY_OF_WEEK);
-        int shift = (firstDayOfWeek + 5) % 7;
+int shift = (tempCal.get(Calendar.DAY_OF_WEEK) + 5) % 7;
 
-        for (int i = 0; i < shift; i++) {
-            days.add(null); // Пустые ячейки
+        for (int i = 1; i <= shift; i++) {
+            Calendar prevMonth = (Calendar) tempCal.clone();
+            prevMonth.add(Calendar.MONTH, -1);
+            prevMonth.set(Calendar.DAY_OF_MONTH, prevMonth.getActualMaximum(Calendar.DAY_OF_MONTH) - shift + i);
+            days.add(prevMonth);
         }
-
-        int maxDay = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+        int maxDay = currentMonth.getActualMaximum(Calendar.DAY_OF_MONTH);
         for (int i = 1; i <= maxDay; i++) {
             Calendar day = (Calendar) tempCal.clone();
             day.set(Calendar.DAY_OF_MONTH, i);
             days.add(day);
         }
 
+        // Add the remaining days of the next month before the end of the week
+        int remainingDays = 7 - (days.size() % 7);
+        if (remainingDays < 7) {
+            for (int i = 1; i <= remainingDays; i++) {
+                Calendar nextMonth = (Calendar) tempCal.clone();
+                nextMonth.add(Calendar.MONTH, 1);
+                nextMonth.set(Calendar.DAY_OF_MONTH, i);
+                days.add(nextMonth);
+            }
+        }
         adapter.setDays(days);
     }
 }
