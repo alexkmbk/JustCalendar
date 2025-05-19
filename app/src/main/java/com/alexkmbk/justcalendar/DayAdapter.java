@@ -75,7 +75,9 @@ public class DayAdapter extends BaseAdapter {
             textView.setTextColor(Color.BLACK);
         }
 
-        if (day.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY || day.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
+        if (day.get(Calendar.DAY_OF_WEEK) == Calendar.SATURDAY) {
+            textView.setTextColor(Color.BLUE); // Выделяем выходные красным цветом
+        } else if (day.get(Calendar.DAY_OF_WEEK) == Calendar.SUNDAY) {
             textView.setTextColor(Color.RED); // Выделяем выходные красным цветом
         }
 

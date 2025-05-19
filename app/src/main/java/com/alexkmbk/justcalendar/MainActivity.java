@@ -1,13 +1,23 @@
-package  com.alexkmbk.justcalendar;
+package com.alexkmbk.justcalendar;
 
 import android.app.Activity;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
+import android.util.TypedValue;
+import android.view.GestureDetector;
+import android.view.Gravity;
+import android.view.MotionEvent;
+import android.view.ViewGroup;
+import android.widget.GridLayout;
 import android.widget.GridView;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 //import androidx.appcompat.app.AppCompatActivity;
 
+import java.text.DateFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -20,6 +30,8 @@ public class MainActivity extends Activity {
     private TextView monthText;
     private GridView daysGrid;
     private DayAdapter adapter;
+
+    private GestureDetector gestureDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,19 +58,104 @@ public class MainActivity extends Activity {
             updateCalendar();
         });
 
+        // Days headers
+        Locale currentLocale = Locale.getDefault();
+        GridLayout weekHeader = findViewById(R.id.weekHeader);
+        String[] weekDays = new DateFormatSymbols(currentLocale).getShortWeekdays();
+
+        Calendar cal = Calendar.getInstance(currentLocale);
+        int firstDay = cal.getFirstDayOfWeek(); // Usually MONDAY
+
+        for (int i = 0; i < 7; i++) {
+            int dayIndex = (firstDay + i - 1) % 7 + 1;
+            String dayLabel = weekDays[dayIndex];
+
+            TextView tv = new TextView(this);
+            tv.setText(dayLabel);
+            tv.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14);
+
+            if (dayIndex == Calendar.SATURDAY) {
+                tv.setTextColor(Color.BLUE); // Выделяем выходные красным цветом
+            }else if (dayIndex == Calendar.SUNDAY) {
+                tv.setTextColor(Color.RED); // Выделяем выходные красным цветом
+            } else {
+                tv.setTextColor(Color.parseColor("#888888"));
+            }
+            tv.setGravity(Gravity.CENTER);
+
+            GridLayout.LayoutParams params = new GridLayout.LayoutParams();
+            params.width = 0;
+            params.height = ViewGroup.LayoutParams.WRAP_CONTENT;
+            params.columnSpec = GridLayout.spec(i, 1f); // columnWeight=1
+            tv.setLayoutParams(params);
+
+            weekHeader.addView(tv);
+        }
+
+        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            private static final int SWIPE_THRESHOLD = 100;
+            private static final int SWIPE_VELOCITY_THRESHOLD = 100;
+
+            @Override
+            public boolean onDown(MotionEvent event) {
+
+                // don't return false here or else none of the other
+                // gestures will work
+                return true;
+            }
+
+            @Override
+            public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+                float diffX = e2.getX() - e1.getX();
+                float diffY = e2.getY() - e1.getY();
+
+                if (Math.abs(diffX) > Math.abs(diffY)) {
+                    if (Math.abs(diffX) > SWIPE_THRESHOLD && Math.abs(velocityX) > SWIPE_VELOCITY_THRESHOLD) {
+                        if (diffX > 0) {
+                            // Свайп вправо – предыдущий месяц
+                            currentMonth.add(Calendar.MONTH, -1);
+                        } else {
+                            // Свайп влево – следующий месяц
+                            currentMonth.add(Calendar.MONTH, 1);
+                        }
+                        updateCalendar();
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+
+        LinearLayout root = findViewById(R.id.rootLayout);
+        root.setOnTouchListener((v, event) -> gestureDetector.onTouchEvent(event));
+
         updateCalendar();
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return gestureDetector.onTouchEvent(event) || super.onTouchEvent(event);
+    }
+
     private void updateCalendar() {
-       SimpleDateFormat sdf = new SimpleDateFormat("LLLL yyyy", new Locale("ru"));
-        String formattedDate = sdf.format(currentMonth.getTime());
-        monthText.setText(formattedDate.substring(0, 1).toUpperCase() + formattedDate.substring(1));
+
+        Locale currentLocale = Locale.getDefault();
+
+        String formattedDate = new SimpleDateFormat("LLLL yyyy", currentLocale)
+                .format(currentMonth.getTime());
+        monthText.setText(Character.toUpperCase(formattedDate.charAt(0)) + formattedDate.substring(1));
+
+        // Days grid
 
         List<Calendar> days = new ArrayList<>();
         Calendar tempCal = (Calendar) currentMonth.clone();
         tempCal.set(Calendar.DAY_OF_MONTH, 1);
 
-int shift = (tempCal.get(Calendar.DAY_OF_WEEK) + 5) % 7;
+        int firstDayOfWeek = tempCal.getFirstDayOfWeek(); // понедельник или воскресенье
+        int dayOfWeekOfFirst = tempCal.get(Calendar.DAY_OF_WEEK);
+
+        // Рассчитываем сдвиг
+        int shift = (7 + (dayOfWeekOfFirst - firstDayOfWeek)) % 7;
 
         for (int i = 1; i <= shift; i++) {
             Calendar prevMonth = (Calendar) tempCal.clone();

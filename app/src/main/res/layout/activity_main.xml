@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rootLayout"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -41,6 +42,7 @@
     </LinearLayout>
 
     <GridLayout
+        android:id="@+id/weekHeader"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:columnCount="7"
@@ -49,21 +51,21 @@
         android:layout_marginTop="16dp"
         >
 
-        <!-- Дни недели -->
-        <!-- Названия дней недели -->
-        <TextView android:text="Пн" style="@style/DayHeader"/>
-        <TextView android:text="Вт" style="@style/DayHeader"/>
-        <TextView android:text="Ср" style="@style/DayHeader"/>
-        <TextView android:text="Чт" style="@style/DayHeader"/>
-        <TextView android:text="Пт" style="@style/DayHeader"/>
-        <TextView
-            android:text="Сб"
-            style="@style/DayHeader"
-            android:textColor="#FF0000" />
-        <TextView
-            android:text="Вс"
-            style="@style/DayHeader"
-            android:textColor="#FF0000" />
+<!--        &lt;!&ndash; Дни недели &ndash;&gt;-->
+<!--        &lt;!&ndash; Названия дней недели &ndash;&gt;-->
+<!--        <TextView android:text="Пн" style="@style/DayHeader"/>-->
+<!--        <TextView android:text="Вт" style="@style/DayHeader"/>-->
+<!--        <TextView android:text="Ср" style="@style/DayHeader"/>-->
+<!--        <TextView android:text="Чт" style="@style/DayHeader"/>-->
+<!--        <TextView android:text="Пт" style="@style/DayHeader"/>-->
+<!--        <TextView-->
+<!--            android:text="Сб"-->
+<!--            style="@style/DayHeader"-->
+<!--            android:textColor="#FF0000" />-->
+<!--        <TextView-->
+<!--            android:text="Вс"-->
+<!--            style="@style/DayHeader"-->
+<!--            android:textColor="#FF0000" />-->
     </GridLayout>
 
     <GridView
