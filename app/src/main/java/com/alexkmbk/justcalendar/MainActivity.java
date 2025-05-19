@@ -121,6 +121,18 @@ public class MainActivity extends Activity {
                         updateCalendar();
                         return true;
                     }
+                }else {
+                    // Вертикальный свайп
+                    if (Math.abs(diffY) > SWIPE_THRESHOLD && Math.abs(velocityY) > SWIPE_VELOCITY_THRESHOLD) {
+                        if (diffY > 0) {
+                            currentMonth.add(Calendar.MONTH, -1);     // свайп вниз
+                        } else {
+                            currentMonth.add(Calendar.MONTH, 1); // свайп вверх
+                        }
+                        updateCalendar();
+                        return true;
+                    }
+                    return false;
                 }
                 return false;
             }
