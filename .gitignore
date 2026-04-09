@@ -15,3 +15,5 @@
 .cxx
 local.properties
 /app/release
+/app/icon/*
+!/app/icon/calendar_icon_flat_vector.svg
